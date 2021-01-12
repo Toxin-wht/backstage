@@ -38,6 +38,7 @@ module.exports = {
       errors: true
     },
     // before: require('./mock/mock-server.js') //禁用mock
+    //添加代理
     proxy:{
       '/dev-api':{
         target:'http://39.99.186.36',

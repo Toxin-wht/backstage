@@ -31,7 +31,7 @@
         label="品牌LOGO"
         width="width">
         <template slot-scope="{row}">
-          <img :src="row.logoUrl" alt="" style="width:80px; heigt:80px">
+          <img :src="row.logoUrl" alt="" style="width:80px; height:80px">
         </template>
       </el-table-column>
       <el-table-column
