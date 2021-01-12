@@ -2,7 +2,15 @@
   <div>
     <!-- element-ui button 按钮 -->
     <el-button type="primary" icon="el-icon-plus">添加</el-button>
-    <!-- element-ui table 表单 -->
+    <!-- element-ui table 表格 -->
+    <!-- element-ui table 表格 
+    不同于原生，他是按列排的，且每列都暗含隐式遍历 
+    ：data绑定动态显示数据
+    prop绑定该列所要展示的数据内的属性
+    type=index 是展示序号列 可以自动排序
+    align="center"居中显示
+    width写具体值就是像素 不写就是平分
+    -->
    <el-table
     :data="trademarkList"
     border 
