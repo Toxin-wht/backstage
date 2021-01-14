@@ -131,7 +131,7 @@ export default {
         this.total=result.data.total
       }
     },
-    //pagination输入跳转回调
+    //切换每页数据显示数量
     handleSizeChange(limit){
       this.limit=limit
       this.getTrademarkList()
