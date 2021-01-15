@@ -172,7 +172,7 @@ export default {
     cancelAddOrUpdate(){
       this.isShowList=true
     },
-    //添加属性
+    //添加属性值
     addAttrValue(){
       this.attrForm.attrValueList.push({
           attrId:this.attrForm.id,
