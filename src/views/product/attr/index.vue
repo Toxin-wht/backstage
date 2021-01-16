@@ -2,7 +2,7 @@
   <div>
     <!-- 三级联动 -->
     <el-card>
-      <CategorySelect @saveCategory="saveCategory"></CategorySelect>
+      <CategorySelect @saveCategory="saveCategory" :isShowList="isShowList"></CategorySelect>
     </el-card>
     <!-- 属性列表与添加修改属性 -->
     <el-card style="margin-top:20px">
@@ -38,7 +38,15 @@
             width="150">
             <template slot-scope="{row,$index}">
               <HintButton type="warning" icon="el-icon-edit" title="修改" size="mini" @click="updateAttrValue(row)"></HintButton>
-              <HintButton type="danger" icon="el-icon-delete" title="删除" size="mini"></HintButton>
+              <el-popconfirm :title="`确定删除${row.attrName}吗？`" @onConfirm="deleteAttrValue(row)">
+                <HintButton 
+                slot="reference" 
+                type="danger" 
+                icon="el-icon-delete" 
+                title="删除" 
+                size="mini" 
+                ></HintButton>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -98,7 +106,7 @@
           </el-table-column>
         </el-table>
 
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="save" :disabled="!attrForm.attrValueList.length">保存</el-button>
         <el-button @click="cancelAddOrUpdate">取消</el-button>
       </div>
     </el-card>
@@ -222,6 +230,49 @@ export default {
         this.$refs[index].focus()
       })
 
+    },
+    //点击保存的回调
+    async save(){
+      //1.收集整理数据
+      let attr = this.attrForm
+      attr.attrValueList=attr.attrValueList.filter(item=>{
+        //剔除属性值名称为空的
+        if(item.valueName!==''){
+          //并删除isEdit自定义属性
+          delete item.isEdit
+          return true
+        }
+      })
+      //属性值列表如果没有属性值，不发请求
+      if(attr.attrValueList.length===0){
+        this.$message.info('属性必须要有属性值')
+        return
+      }
+      //2.发送请求
+      try {
+        //成功
+        await this.$API.attr.addOrUpdateAttr(attr)
+        this.$message.success('保存成功')
+        this.isShowList=true
+        this.getAttrList()
+      } catch (error) {
+        //失败
+        this.$message.error('保存失败')
+      }
+      
+      
+      
+    },
+    //点击删除
+    async deleteAttrValue(row){
+      try {
+        await this.$API.attr. deleteAttr(row.id)
+        this.$message.success('删除成功')
+        this.getAttrList()
+      } catch (error) {
+        this.$message.error('删除失败')
+      }
+      
     }
 
   }
