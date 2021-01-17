@@ -90,10 +90,12 @@ export default {
         this.category2Id=''
         this.category3Id=''
         this.spuList=[]
+        this.total=0
       }else if(level===2){
         this.category2Id=categoryId
         this.category3Id=''
         this.spuList=[]
+        this.total=0
       }else{
         this.category3Id=categoryId
         this.getSpuList()
