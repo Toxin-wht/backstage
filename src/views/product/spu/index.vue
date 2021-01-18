@@ -53,7 +53,7 @@
       <!-- sku -->
       <SkuForm v-show="isShowSku"></SkuForm>
       <!-- spu -->
-      <SpuForm v-show="isShowSpu"></SpuForm>
+      <SpuForm v-show="isShowSpu" :visible.sync="isShowSpu" ref="spuForm"></SpuForm>
     </el-card>
   </div>
 </template>
@@ -118,10 +118,12 @@ export default {
     //点击添加SPU
     showAddSpu(){
       this.isShowSpu=true
+      this.$refs.spuForm.initAddDate()
     },
     //点击修改SPU
     updateSpu(row){
       this.isShowSpu=true
+      this.$refs.spuForm.initUpdateData(row)
     },
     //点击添加SKU
     showAddSku(row){
