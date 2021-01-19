@@ -53,7 +53,7 @@
         </el-pagination>
       </div>
       <!-- sku -->
-      <SkuForm v-show="isShowSku" ref="skuForm"></SkuForm>
+      <SkuForm v-show="isShowSku" ref="skuForm" :visible.sync="isShowSku"></SkuForm>
       <!-- spu -->
       <SpuForm 
       v-show="isShowSpu" 
