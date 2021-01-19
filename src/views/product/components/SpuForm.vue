@@ -102,8 +102,8 @@
           </el-table-column>
         </el-table>
         <!-- 按钮 -->
-        <el-button type="primary">保存</el-button>
-        <el-button @click="$emit('update:visible',false)">取消</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -142,6 +142,7 @@ export default {
         //   }
         ],  
       },
+
       //照片墙所用数据
       dialogImageUrl: '',
       dialogVisible: false,
@@ -152,11 +153,13 @@ export default {
       trademarkList:[],//品牌列表
       saleAttrList:[],//所有销售属性列表
 
+      category3Id:''
     }
   },
   methods:{
     //添加--初始化获取数据
-    async initAddDate(){
+    async initAddDate(category3Id){
+      this.category3Id=category3Id
       //http://localhost:9528/dev-api/admin/product/baseTrademark/getTrademarkList 获取所有的品牌列表数据
       const trademarkResult=await this.$API.trademark.getList()
       if (trademarkResult.code===200) {
@@ -170,6 +173,7 @@ export default {
     },
     //修改--初始化获取数据
     async initUpdateData(spu){
+      this.category3Id=spu.category3Id
       //http://localhost:9528/dev-api/admin/product/getSpuById/4 获取spu的详情
       const result=await this.$API.spu.get(spu.id)
       if(result.code===200){
@@ -231,6 +235,7 @@ export default {
     //回车与失去焦点事件
     handleInputConfirm(row){
       let saleAttrValueName=row.inputValue
+      let baseSaleAttrId =row.baseSaleAttrId
       //校验
       if (saleAttrValueName.trim()==='') {
         row.inputValue=''
@@ -245,12 +250,74 @@ export default {
         return
       }
       //整理数据 添加到属性值列表中
-      let obj={saleAttrValueName}
+      let obj={
+        saleAttrValueName,
+        baseSaleAttrId
+      }
       row.spuSaleAttrValueList.push(obj)
       //清空输入框内容
       row.inputValue=''
       //将input变为button
       row.inputVisible=false
+    },
+    //点击保存
+    async save(){
+      //1.收集整理数据 spuForm对象 img图片格式 category3Id
+      let {spuForm,spuImageList,category3Id}=this
+      spuForm.category3Id=category3Id//整理category3id
+      //整理图片格式
+      spuForm.spuImageList=spuImageList.map(item=>{
+        return{
+          imgName:item.name,//新旧图片都有name
+          imgUrl:item.imgUrl || item.response.data//旧图片可以直接用imgUrl属性 而新上传图片的路径只能用response的data
+        }
+      })
+      //消除自定义属性
+      spuForm.spuSaleAttrList.forEach(item=>{
+        delete item.inputVisible    
+        delete item.inputValue
+      })
+      //2.发请求
+      
+      try {
+        //成功
+        await this.$API.spu.addUpdate(spuForm)
+        this.$message.success('成功')//提示信息
+        this.$emit('update:visible',false)//仅返回列表页
+        this.$emit('successBack')//通知父组件成功返回
+        this.resetData()//清空数据
+      } catch (error) {
+        //失败
+        this.$message.error('保存失败')
+      }
+    },
+    //点击取消
+    cancel(){
+      this.$emit('update:visible',false),//返回例表页
+      this.$emit('cancelBack'),//通知父组件取消返回
+      this.resetData()//清空数据
+    },
+    //重置数据
+    resetData(){
+      this.spuForm={
+        spuName:'',//品牌名称
+        tmId:'',//品牌ID
+        description:'',//SPU描述
+        category3Id:0,
+        spuImageList:[],  
+        spuSaleAttrList:[],  
+      },
+      //照片墙所用数据
+      this.dialogImageUrl= '',
+      this.dialogVisible= false,
+      //销售属性
+      this.SaleAttrIdName='',
+
+      this.spuImageList=[],//图片列表
+      this.trademarkList=[],//品牌列表
+      this.saleAttrList=[],//所有销售属性列表
+
+      this.category3Id=''
     }
 
   },

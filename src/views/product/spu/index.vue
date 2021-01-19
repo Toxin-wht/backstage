@@ -35,7 +35,9 @@
               <HintButton type="primary" @click="showAddSku(row)" icon="el-icon-plus" size="mini" title="添加SKU"></HintButton>
               <HintButton type="warning" @click="updateSpu(row)" icon="el-icon-edit" size="mini" title="修改SPU"></HintButton>
               <HintButton type="info" icon="el-icon-info" size="mini" title="查看SKU列表"></HintButton>
-              <HintButton type="danger" icon="el-icon-delete" size="mini" title="删除SPU"></HintButton>
+              <el-popconfirm :title="`确定删除${row.spuName}吗？`" @onConfirm="deleteSpu(row)">
+                <HintButton type="danger" slot="reference" icon="el-icon-delete" size="mini" title="删除SPU"></HintButton>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -51,9 +53,15 @@
         </el-pagination>
       </div>
       <!-- sku -->
-      <SkuForm v-show="isShowSku"></SkuForm>
+      <SkuForm v-show="isShowSku" ref="skuForm"></SkuForm>
       <!-- spu -->
-      <SpuForm v-show="isShowSpu" :visible.sync="isShowSpu" ref="spuForm"></SpuForm>
+      <SpuForm 
+      v-show="isShowSpu" 
+      :visible.sync="isShowSpu" 
+      ref="spuForm"
+      @successBack="successBack"
+      @cancelBack="cancelBack"
+      ></SpuForm>
     </el-card>
   </div>
 </template>
@@ -118,16 +126,42 @@ export default {
     //点击添加SPU
     showAddSpu(){
       this.isShowSpu=true
-      this.$refs.spuForm.initAddDate()
+      this.$refs.spuForm.initAddDate(this.category3Id)
     },
     //点击修改SPU
     updateSpu(row){
+      this.flag=row.id//添加标识数据
       this.isShowSpu=true
       this.$refs.spuForm.initUpdateData(row)
     },
     //点击添加SKU
     showAddSku(row){
       this.isShowSku=true
+      this.$refs.skuForm.initAddData(row,this.category1Id,this.category2Id)
+    },
+    //成功返回
+    successBack(){
+      if (this.flag) {
+        this.getSpuList(this.page)
+      }else{
+        this.getSpuList()
+      }
+      this.flag=null//清空标识数据
+    },
+    //取消返回
+    cancelBack(){
+      this.flag=null
+    },
+    // 删除SPU
+    async deleteSpu(row){
+      try {
+        await this.$API.spu.remove(row.id)
+        this.$message.success('删除成功')
+        this.getSpuList(this.spuList.length>1?this.page:this.page-1)
+      } catch (error) {
+        this.$message.error('删除失败')
+      }
+      
     }
   }
 }
