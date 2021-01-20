@@ -17,6 +17,7 @@ import '@/permission' // permission control
 import * as API from '@/api'
 import CategorySelect from '@/components/CategorySelect' 
 import HintButton from '@/components/HintButton'
+import '@/plugins/vcharts'
 Vue.component(CategorySelect.name,CategorySelect)
 Vue.component(HintButton.name,HintButton)
 /**

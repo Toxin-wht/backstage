@@ -73,8 +73,8 @@
       </el-form-item>
       <!-- 保存取消按钮 -->
       <el-form-item>
-        <el-button type="primary">保存</el-button>
-        <el-button @click="$emit('update:visible',false)">取消</el-button>
+        <el-button type="primary" @click="save">保存</el-button>
+        <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -88,6 +88,7 @@ export default {
       skuForm:{  
         tmId: 0,
         category3Id: 0,
+        spuId:0,
 
         skuName:'',
         price: '',
@@ -171,6 +172,88 @@ export default {
       row.isDefault='1'
       //收集默认图片
       this.skuForm.skuDefaultImg=row.imgUrl
+    },
+    //点击保存
+    async save(){
+      let {skuForm,spu,attrList,spuSaleAttrList,checkedImgList} = this
+      //整理spu数据
+      skuForm.tmId=spu.tmId
+      skuForm.category3Id=spu.category3Id
+      skuForm.spuId=spu.id
+      //整理平台属性 数组reduce统计出一个标准格式的数组   
+      skuForm.skuAttrValueList=attrList.reduce((prev,item)=>{
+        if (item.attrIdValue) {
+          let [attrId,valueId] =item.attrIdValue.split(':')
+          let obj={
+            attrId,
+            valueId
+          }
+          prev.push(obj)
+        }
+        return prev
+      },[])
+      //整理销售属性
+      skuForm.skuSaleAttrValueList=spuSaleAttrList.reduce((prev,item)=>{
+        if (item.saleIdValue) {
+          let [saleAttrId,saleAttrValueId] =item.saleIdValue.split(':')
+          let obj={
+            saleAttrId,
+            saleAttrValueId
+          }
+          prev.push(obj)
+        }
+        return prev
+      },[])
+      //整理图片
+      skuForm.skuImageList=checkedImgList.map(item=>{
+        return{
+          imgName:item.imgName,
+          imgUrl:item.imgUrl,
+          isDefault:item.isDefault,
+          spuImgId:item.id
+        }
+      })
+      //发请求
+      try {
+        await this.$API.sku.addUpdate(skuForm)
+        this.$message.success('保存成功')
+        this.$emit('update:visible',false)//切回页面
+        this.resetData()//清空数据
+      } catch (error) {
+        this.$message.error('保存失败')
+      }
+      
+    },
+    //点击取消
+    cancel(){
+      this.$emit('update:visible',false)
+      this.resetData()
+    },
+    //清空数据
+    resetData(){
+      this.skuForm={  
+        tmId: 0,
+        category3Id: 0,
+        spuId:0,
+
+        skuName:'',
+        price: '',
+        skuDesc:'',
+        weight:'',
+
+        skuDefaultImg:'',
+        skuAttrValueList:[],
+        skuImageList:[],
+        skuSaleAttrValueList:[],
+      },
+      //父组件传来的spu对象
+      this.spu={},
+      //初始化获取数据
+      this.attrList=[],
+      this.spuSaleAttrList=[],
+      this.spuImageList=[],
+      //table选中图片
+      this.checkedImgList=[]
     }
   }
 }

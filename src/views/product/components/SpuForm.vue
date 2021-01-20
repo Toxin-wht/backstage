@@ -228,6 +228,7 @@ export default {
     //点击添加BUTTON
     showInput(row){
       this.$set(row,'inputVisible',true)
+      this.$set(row,'inputValue','')//解决小bug
       this.$nextTick(()=>{
         this.$refs.saveTagInput.focus()
       })  
